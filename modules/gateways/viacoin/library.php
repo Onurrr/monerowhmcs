@@ -7,10 +7,10 @@
  *
  * @author Kacper Rowinski <krowinski@implix.com>
  * http://implix.com
- * Modified to work with monero-rpc wallet by Serhack and cryptochangements
+ * Modified to work with viacoin-rpc wallet by Serhack and cryptochangements
  */
  
-class Monero_rpc
+class Viacoin_rpc
 {
     protected $url = null, $is_debug = false, $parameters_structure = 'array';
 
@@ -35,7 +35,7 @@ class Monero_rpc
    
     public function __construct($pUrl, $pUser = null, $pPass = null) {
 
-		$gatewayx = getGatewayVariables("monero");
+		$gatewayx = getGatewayVariables("viacoin");
         $this->validate(false === extension_loaded('curl'), 'The curl extension must be loaded for using this class!');
         $this->validate(false === extension_loaded('json'), 'The json extension must be loaded for using this class!');
 		$this->url = $gatewayx['daemon_host']. ":" .$gatewayx['daemon_port'] . "/json_rpc";
@@ -111,7 +111,7 @@ class Monero_rpc
             $errorMessage = 'Request have return error: ' . $responseDecoded['error']['message'] . '; ' . "\n" .
                 'Request: ' . $request . '; ';
                 if ($responseDecoded['error']['message'] == "Method not found") {
-                	$errorMessage .= " Check the daemon hostname and daemon port settings in the Monero Pyament Gateway WHMCS config.";
+                	$errorMessage .= " Check the daemon hostname and daemon port settings in the Viacoin Payment Gateway WHMCS config.";
                 }
             if (isset($responseDecoded['error']['data']))
             {
@@ -240,7 +240,7 @@ class Monero_rpc
     }
     
     /* 
-     * The following functions can all be called to interact with the monero rpc wallet
+     * The following functions can all be called to interact with the viacoin rpc wallet
      * They will majority of them will return the result as an array
      * Example: $daemon->address(); where $daemon is an instance of this class, will return the wallet address as string within an array
      */
@@ -305,10 +305,10 @@ class Monero_rpc
         }
     }
     
-    public function make_uri($address, $amount_xmr, $recipient_name = null, $description = null)
+    public function make_uri($address, $amount_via, $recipient_name = null, $description = null)
     {
-        // If I pass 1, it will be 0.0000001 xmr. Then 
-        $new_amount = $amount_xmr * 100000000;
+        // If I pass 1, it will be 0.0000001 via. Then 
+        $new_amount = $amount_via * 100000000;
        
         $uri_params = array('address' => $address, 'amount' => $new_amount, 'payment_id' => '', 'recipient_name' => $recipient_name, 'tx_description' => $description);
         $uri = $this->_run('make_uri', $uri_params);
@@ -322,9 +322,9 @@ class Monero_rpc
         return $parsed_uri;
     }
     
-    public function transfer($amount_xmr, $address, $mixin = 4)
+    public function transfer($amount_via, $address, $mixin = 4)
     {
-        $new_amount = $amount_xmr  * 1000000000000;
+        $new_amount = $amount_via  * 1000000000000;
         $destinations = array('amount' => $new_amount, 'address' => $address);
         $transfer_parameters = array('destinations' => array($destinations), 'mixin' => $mixin, 'get_tx_key' => true, 'unlock_time' => 0, 'payment_id' => '');
         $transfer_method = $this->_run('transfer', $transfer_parameters);

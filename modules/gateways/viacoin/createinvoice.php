@@ -8,7 +8,7 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 
-$gatewaymodule = "monero";
+$gatewaymodule = "viacoin";
 $GATEWAY = getGatewayVariables($gatewaymodule);
 if(!$GATEWAY["type"]) die("Module not activated");
 require_once('library.php');
@@ -16,7 +16,7 @@ require_once('library.php');
 $link = $GATEWAY['daemon_host'].":".$GATEWAY['daemon_port']."/json_rpc";
 
 
-function monero_payment_id(){
+function viacoin_payment_id(){
     if(!isset($_COOKIE['payment_id'])) { 
 		$payment_id  = bin2hex(openssl_random_pseudo_bytes(8));
 		setcookie('payment_id', $payment_id, time()+2700);
@@ -27,24 +27,24 @@ function monero_payment_id(){
 	
 }
 
-$monero_daemon = new Monero_rpc($link);
+$viacoin_daemon = new Viacoin_rpc($link);
 
 $message = "Waiting for your payment.";
 $_POST  = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 $currency = stripslashes($_POST['currency']);
-$amount_xmr = stripslashes($_POST['amount_xmr']);
+$amount_via = stripslashes($_POST['amount_via']);
 $amount = stripslashes($_POST['amount']);
-$payment_id = monero_payment_id();
+$payment_id = viacoin_payment_id();
 $invoice_id = stripslashes($_POST['invoice_id']);
-$array_integrated_address = $monero_daemon->make_integrated_address($payment_id);
+$array_integrated_address = $viacoin_daemon->make_integrated_address($payment_id);
 $address = $array_integrated_address['integrated_address'];
-$uri  =  "monero:$address?amount=$amount_xmr";
+$uri  =  "viacoin:$address?amount=$amount_via";
 
 $secretKey = $GATEWAY['secretkey'];
-$hash = md5($invoice_id . $payment_id . $amount_xmr . $secretKey);
-echo "<link href='/modules/gateways/monero/style.css' rel='stylesheet'>";
+$hash = md5($invoice_id . $payment_id . $amount_via . $secretKey);
+echo "<link href='/modules/gateways/viacoin/style.css' rel='stylesheet'>";
 echo  "<script src='https://code.jquery.com/jquery-3.2.1.min.js'></script>";
-echo  "<script src='/modules/gateways/monero/spin.js'></script>";
+echo  "<script src='/modules/gateways/viacoin/spin.js'></script>";
 
 
 echo "<title>Invoice</title>";
@@ -58,7 +58,7 @@ echo "<head>
             <body>
             <!-- page container  -->
             <div class='page-container'>
-                <img src='/modules/gateways/monero/monerologo.png' width='200' />
+                <img src='/modules/gateways/viacoin/monerologo.png' width='200' />
 
         <div class='progress' id='progress'></div>
 
@@ -90,14 +90,14 @@ echo "<head>
             <div class='container-xmr-payment'>
             <!-- header -->
             <div class='header-xmr-payment'>
-            <span class='xmr-payment-text-header'><h2>MONERO PAYMENT</h2></span>
+            <span class='xmr-payment-text-header'><h2>VIACOIN PAYMENT</h2></span>
             </div>
             <!-- end header -->
             <!-- xmr content box -->
             <div class='content-xmr-payment'>
             <div class='xmr-amount-send'>
             <span class='xmr-label'>Send:</span>
-            <div class='xmr-amount-box'>".$amount_xmr." XMR ($" . $amount . " " . $currency .") </div><div class='xmr-box'>XMR</div>
+            <div class='xmr-amount-box'>".$amount_via." VIA ($" . $amount . " " . $currency .") </div><div class='xmr-box'>XMR</div>
             </div>
             <div class='xmr-address'>
             <span class='xmr-label'>To this address:</span>
@@ -127,7 +127,7 @@ echo "<script> function verify(){
 
 $.ajax({ url : 'verify.php',
 	type : 'POST',
-	data: { 'amount_xmr' : '".$amount_xmr."', 'payment_id' : '".$payment_id."', 'invoice_id' : '".$invoice_id."', 'amount' : '".$amount."', 'hash' : '".$hash."', 'currency' : '".$currency."'}, 
+	data: { 'amount_xmr' : '".$amount_via."', 'payment_id' : '".$payment_id."', 'invoice_id' : '".$invoice_id."', 'amount' : '".$amount."', 'hash' : '".$hash."', 'currency' : '".$currency."'}, 
 	success: function(msg) {
 		console.log(msg);
 		$('#message').text(msg);
